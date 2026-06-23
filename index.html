@@ -1,0 +1,1371 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rohan's NZ Job Application Tracker</title>
+  <style>
+    :root {
+      --ink: #edeeed;
+      --muted: #8a8f8c;
+      --line: #2a2c2a;
+      --paper: #0a0a0a;
+      --panel: rgba(20, 21, 20, 0.92);
+      --panel-soft: rgba(255, 255, 255, 0.04);
+      --green: #2fae67;
+      --blue: #4fa8e0;
+      --red: #d9636c;
+      --amber: #c79a3e;
+      --teal: #16241c;
+      --sky: #16202a;
+      --rose: #2a1a1c;
+      --gold: #271f10;
+      --pitch: #060606;
+      --pitch-line: rgba(255, 255, 255, 0.05);
+      --shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.05) 0%, transparent 45%),
+        linear-gradient(180deg, #0c0c0c 0, #060606 420px, #050505 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 100px 0 auto;
+      height: 520px;
+      z-index: -2;
+      opacity: 0.4;
+      background:
+        linear-gradient(90deg, transparent 0 calc(50% - 1px), rgba(255, 255, 255, 0.09) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)),
+        radial-gradient(circle at 50% 50%, transparent 0 76px, rgba(255, 255, 255, 0.08) 78px 80px, transparent 82px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 76px),
+        linear-gradient(0deg, rgba(255, 255, 255, 0.02) 0 1px, transparent 1px 76px);
+      background-size: auto, auto, 76px 76px, 76px 76px;
+      pointer-events: none;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: var(--panel-soft);
+      color: var(--ink);
+      border-radius: 6px;
+      min-height: 38px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    button:hover { border-color: var(--green); }
+    button.primary { background: var(--green); border-color: var(--green); color: #06160d; font-weight: 700; }
+    button.danger { color: var(--red); }
+    button.icon { width: 38px; padding: 8px; display: inline-grid; place-items: center; }
+    button.full-width { width: 100%; }
+
+    .accreditation-row { align-items: end; }
+    .accreditation-check-label { color: transparent; }
+
+    .accred-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .accred-yes { background: var(--teal); color: var(--green); }
+    .accred-no { background: var(--rose); color: var(--red); }
+    .accred-unknown { background: rgba(255, 255, 255, 0.06); color: var(--muted); }
+
+    header {
+      padding: 24px clamp(16px, 4vw, 42px) 14px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(90deg, rgba(15, 15, 15, 0.85), rgba(8, 8, 8, 0.7));
+      backdrop-filter: blur(8px);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: clamp(24px, 3vw, 40px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .subhead {
+      margin: 0;
+      color: var(--muted);
+      max-width: 760px;
+      line-height: 1.45;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    main {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 18px clamp(16px, 4vw, 42px) 34px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(130px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .stat {
+      background: linear-gradient(160deg, rgba(38, 40, 38, 0.92) 0%, rgba(16, 17, 16, 0.95) 65%, rgba(8, 8, 8, 0.96) 100%);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 88px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(8px);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 26px;
+      line-height: 1.2;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.25;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(320px, 390px) 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .panel {
+      background: linear-gradient(165deg, rgba(34, 36, 34, 0.92) 0%, rgba(14, 15, 14, 0.95) 60%, rgba(8, 8, 8, 0.96) 100%);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .form-panel {
+      position: sticky;
+      top: 14px;
+      max-height: calc(100vh - 28px);
+      overflow: auto;
+    }
+
+    .panel h2 {
+      margin: 0;
+      padding: 15px 16px 10px;
+      font-size: 19px;
+    }
+
+    form {
+      display: grid;
+      gap: 12px;
+      padding: 0 16px 16px;
+    }
+
+    label {
+      display: grid;
+      gap: 5px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 8px 10px;
+      color: var(--ink);
+      background: rgba(0, 0, 0, 0.25);
+    }
+
+    input::placeholder, textarea::placeholder { color: #5e7468; }
+    select option { background: #0f2018; color: var(--ink); }
+
+    textarea {
+      min-height: 72px;
+      resize: vertical;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 7px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: linear-gradient(160deg, rgba(255, 255, 255, 0.03) 0%, rgba(0, 0, 0, 0.22) 100%);
+    }
+
+    .checklist label {
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      align-items: start;
+      color: var(--ink);
+      font-size: 13px;
+      line-height: 1.25;
+    }
+
+    .checklist input {
+      min-height: auto;
+      width: 16px;
+      margin: 1px 0 0;
+    }
+
+    .form-actions {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) 150px 150px 150px;
+      gap: 10px;
+      padding: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(0, 0, 0, 0.18);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .tab[aria-selected="true"] {
+      color: #06160d;
+      background: var(--green);
+      border-color: var(--green);
+      font-weight: 700;
+    }
+
+    .table-wrap {
+      overflow: auto;
+    }
+
+    table {
+      width: 100%;
+      min-width: 1080px;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      color: var(--muted);
+      background: #0c1d14;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+
+    tr:hover td { background: rgba(56, 193, 114, 0.05); }
+
+    .title-cell strong {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 15px;
+    }
+
+    .title-cell span, .small {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      min-height: 24px;
+      max-width: 100%;
+      border-radius: 999px;
+      padding: 3px 9px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--ink);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .pill.stage-Saved { background: rgba(255, 255, 255, 0.06); }
+    .pill.stage-Applied { background: var(--sky); color: #8fc6f0; }
+    .pill.stage-Screening { background: var(--teal); color: #6fe0a3; }
+    .pill.stage-Interview { background: var(--gold); color: #f0cc6e; }
+    .pill.stage-Offer { background: #163a1d; color: #7be08e; }
+    .pill.stage-Rejected { background: var(--rose); color: #f0939b; }
+    .pill.stage-Withdrawn { background: #2a1f3e; color: #c4a9ef; }
+
+    .analytics-cell {
+      min-width: 150px;
+    }
+
+    .mini-funnel {
+      display: grid;
+      gap: 6px;
+      margin-top: 5px;
+    }
+
+    .mini-step {
+      display: grid;
+      grid-template-columns: 58px 1fr 34px;
+      align-items: center;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.2;
+    }
+
+    .mini-bar {
+      height: 6px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .mini-fill {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #38c172, #e0b53f);
+    }
+
+    .analytics-note {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .funnel-overview {
+      display: grid;
+      gap: 8px;
+    }
+
+    .funnel-row {
+      display: grid;
+      grid-template-columns: 84px minmax(90px, 1fr) 44px;
+      align-items: center;
+      gap: 9px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .funnel-track {
+      height: 8px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .funnel-fill {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #38c172, #e0b53f);
+    }
+
+    .funnel-meta {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .risk {
+      color: var(--red);
+      font-weight: 700;
+    }
+
+    .ok {
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .table-actions {
+      display: flex;
+      gap: 6px;
+      justify-content: flex-end;
+      white-space: nowrap;
+    }
+
+    .empty {
+      display: none;
+      padding: 34px 16px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .empty.visible { display: block; }
+
+    .insights {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      padding: 14px;
+      border-top: 1px solid var(--line);
+    }
+
+    .insight {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: linear-gradient(160deg, rgba(255, 255, 255, 0.045) 0%, rgba(0, 0, 0, 0.2) 70%, rgba(0, 0, 0, 0.3) 100%);
+      min-height: 96px;
+    }
+
+    .insight h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+    }
+
+    .insight ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 13px;
+    }
+
+    .source-note {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 5;
+      max-width: min(360px, calc(100vw - 36px));
+      padding: 12px 14px;
+      border-radius: 8px;
+      color: #06160d;
+      background: var(--green);
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 180ms ease, transform 180ms ease;
+      pointer-events: none;
+      font-weight: 600;
+    }
+
+    .toast.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 1080px) {
+      .stats { grid-template-columns: repeat(3, 1fr); }
+      .workspace { grid-template-columns: 1fr; }
+      .form-panel { position: static; max-height: none; }
+      .insights { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 760px) {
+      .topbar { align-items: stretch; flex-direction: column; }
+      .actions { justify-content: flex-start; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .filters { grid-template-columns: 1fr 1fr; }
+      .row { grid-template-columns: 1fr; }
+      .insights { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      .stats, .filters { grid-template-columns: 1fr; }
+      .toolbar { align-items: stretch; flex-direction: column; }
+      .tabs { width: 100%; }
+      .tab { flex: 1; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div>
+        <h1>Rohan's NZ Job Application Tracker</h1>
+        <p class="subhead">I CAN DO THIS ALL DAY!!!</p>
+      </div>
+      <div class="actions">
+        <button id="sampleBtn" title="Load example NZ applications">Load examples</button>
+        <button id="exportBtn" title="Export applications as CSV">Export CSV</button>
+        <button id="jsonBtn" title="Download backup file">Backup</button>
+        <label class="buttonish" title="Restore from backup">
+          <input id="importInput" type="file" accept="application/json" class="hidden">
+          <button type="button" id="importBtn">Restore</button>
+        </label>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="stats" aria-label="Application summary">
+      <div class="stat"><strong id="statTotal">0</strong><span>Total applications</span></div>
+      <div class="stat"><strong id="statActive">0</strong><span>Active opportunities</span></div>
+      <div class="stat"><strong id="statInterviews">0</strong><span>Interview pipeline</span></div>
+      <div class="stat"><strong id="statFollowups">0</strong><span>Follow-ups due</span></div>
+      <div class="stat"><strong id="statOffer">0</strong><span>Offers to review</span></div>
+    </section>
+
+    <section class="workspace">
+      <aside class="panel form-panel">
+        <h2 id="formTitle">Add application</h2>
+        <form id="applicationForm">
+          <input id="recordId" type="hidden">
+          <label>Job title
+            <input id="title" required placeholder="e.g. Product Manager">
+          </label>
+          <label>Organisation
+            <input id="company" required placeholder="e.g. Auckland Council">
+          </label>
+          <div class="row accreditation-row">
+            <label>AEWV accredited employer
+              <select id="accreditationStatus">
+                <option>Not checked</option>
+                <option>Accredited</option>
+                <option>Not accredited</option>
+              </select>
+            </label>
+            <label class="accreditation-check-label">&nbsp;
+              <button type="button" id="checkAccreditationBtn" class="full-width">Check on INZ ↗</button>
+            </label>
+          </div>
+          <div class="row">
+            <label>Location
+              <select id="location">
+                <option>Auckland</option>
+                <option>Wellington</option>
+                <option>Christchurch</option>
+                <option>Hamilton</option>
+                <option>Tauranga</option>
+                <option>Dunedin</option>
+                <option>Queenstown</option>
+                <option>Remote NZ</option>
+                <option>Hybrid NZ</option>
+                <option>Other NZ</option>
+              </select>
+            </label>
+            <label>Work type
+              <select id="workType">
+                <option>Full-time</option>
+                <option>Part-time</option>
+                <option>Fixed-term</option>
+                <option>Casual</option>
+                <option>Contractor</option>
+                <option>Internship</option>
+              </select>
+            </label>
+          </div>
+          <div class="row">
+            <label>Stage
+              <select id="stage">
+                <option>Saved</option>
+                <option>Applied</option>
+                <option>Screening</option>
+                <option>Interview</option>
+                <option>Offer</option>
+                <option>Rejected</option>
+                <option>Withdrawn</option>
+              </select>
+            </label>
+            <label>Priority
+              <select id="priority">
+                <option>High</option>
+                <option>Medium</option>
+                <option>Low</option>
+              </select>
+            </label>
+          </div>
+          <div class="row">
+            <label>Advert closes
+              <input id="closingDate" type="date">
+            </label>
+            <label>Date applied
+              <input id="appliedDate" type="date">
+            </label>
+          </div>
+          <div class="row">
+            <label>Next follow-up
+              <input id="followupDate" type="date">
+            </label>
+            <label>Interview date
+              <input id="interviewDate" type="datetime-local">
+            </label>
+          </div>
+          <div class="row">
+            <label>Salary min NZD
+              <input id="salaryMin" type="number" min="0" step="1000" placeholder="85000">
+            </label>
+            <label>Salary max NZD
+              <input id="salaryMax" type="number" min="0" step="1000" placeholder="105000">
+            </label>
+          </div>
+          <div class="row">
+            <label>Source
+              <select id="source">
+                <option>Seek</option>
+                <option>Trade Me Jobs</option>
+                <option>LinkedIn</option>
+                <option>Govt Jobs</option>
+                <option>Kiwi Health Jobs</option>
+                <option>Company site</option>
+                <option>Referral</option>
+                <option>Recruiter</option>
+                <option>Other</option>
+              </select>
+            </label>
+            <label>Contact person
+              <input id="contact" placeholder="Name, email, phone">
+            </label>
+          </div>
+          <label>Job ad link
+            <input id="jobUrl" type="url" placeholder="https://">
+          </label>
+          <label>Tailored CV / cover letter status
+            <select id="documents">
+              <option>Not started</option>
+              <option>CV tailored</option>
+              <option>Cover letter tailored</option>
+              <option>Both tailored</option>
+              <option>Submitted</option>
+            </select>
+          </label>
+          <label>NZ application checklist
+            <div class="checklist">
+              <label><input type="checkbox" name="check" value="rightToWork"> Right to work or visa requirement noted</label>
+              <label><input type="checkbox" name="check" value="payRange"> Pay range checked in NZD</label>
+              <label><input type="checkbox" name="check" value="agreement"> Written employment agreement expected before starting</label>
+              <label><input type="checkbox" name="check" value="privacy"> Privacy consent considered for references, checks, or stored documents</label>
+              <label><input type="checkbox" name="check" value="kiwisaver"> KiwiSaver, PAYE, and IRD details ready if offer proceeds</label>
+              <label><input type="checkbox" name="check" value="leave"> Leave/public holiday entitlements reviewed for employee roles</label>
+            </div>
+          </label>
+          <label>Notes
+            <textarea id="notes" placeholder="Interview prep, questions, recruiter updates, red flags, offer terms..."></textarea>
+          </label>
+          <div class="form-actions">
+            <button class="primary" type="submit">Save application</button>
+            <button id="resetBtn" type="button">Clear</button>
+          </div>
+        </form>
+      </aside>
+
+      <section class="panel">
+        <div class="filters">
+          <input id="search" placeholder="Search title, organisation, notes, contact">
+          <select id="stageFilter">
+            <option value="">All stages</option>
+            <option>Saved</option>
+            <option>Applied</option>
+            <option>Screening</option>
+            <option>Interview</option>
+            <option>Offer</option>
+            <option>Rejected</option>
+            <option>Withdrawn</option>
+          </select>
+          <select id="locationFilter">
+            <option value="">All locations</option>
+          </select>
+          <select id="sortBy">
+            <option value="followup">Sort: follow-up</option>
+            <option value="closing">Sort: advert closes</option>
+            <option value="applied">Sort: date applied</option>
+            <option value="priority">Sort: priority</option>
+            <option value="salary">Sort: salary</option>
+          </select>
+        </div>
+        <div class="toolbar">
+          <div class="tabs" role="tablist" aria-label="Quick filters">
+            <button class="tab" data-view="all" aria-selected="true">All</button>
+            <button class="tab" data-view="active" aria-selected="false">Active</button>
+            <button class="tab" data-view="due" aria-selected="false">Due</button>
+            <button class="tab" data-view="offers" aria-selected="false">Offers</button>
+          </div>
+          <span id="resultCount" class="small">0 shown</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Role</th>
+                <th>Stage</th>
+                <th>Dates</th>
+                <th>Salary</th>
+                <th>NZ checks</th>
+                <th>Analytics</th>
+                <th>Contact</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="applicationRows"></tbody>
+          </table>
+          <div id="emptyState" class="empty">No applications match the current view.</div>
+        </div>
+        <div class="insights">
+          <div class="insight">
+            <h3>Due next</h3>
+            <ul id="dueList"><li>No upcoming follow-ups yet.</li></ul>
+          </div>
+          <div class="insight">
+            <h3>Application funnel</h3>
+            <div id="funnelOverview" class="funnel-overview"></div>
+            <p id="funnelMeta" class="funnel-meta">Add applications to see conversion rates.</p>
+          </div>
+          <div class="insight">
+            <h3>NZ offer review prompts</h3>
+            <ul>
+              <li>Confirm the role type: employee, fixed-term, casual, or contractor.</li>
+              <li>Check pay, hours, public holidays, leave, KiwiSaver, and any trial or probation terms.</li>
+              <li>Keep consent records for reference checks, police checks, health checks, or credit checks.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const STORAGE_KEY = "nz-job-application-tracker-v1";
+    const NZ_MINIMUM_WAGE_2026 = 24.10;
+    const stages = ["Saved", "Applied", "Screening", "Interview", "Offer", "Rejected", "Withdrawn"];
+    const priorityRank = { High: 0, Medium: 1, Low: 2 };
+    const stageActive = new Set(["Saved", "Applied", "Screening", "Interview", "Offer"]);
+    const checkLabels = {
+      rightToWork: "Right to work",
+      payRange: "Pay range",
+      agreement: "Written agreement",
+      privacy: "Privacy consent",
+      kiwisaver: "KiwiSaver/PAYE",
+      leave: "Leave/public holidays"
+    };
+    const nzDate = new Intl.DateTimeFormat("en-NZ", { day: "2-digit", month: "short", year: "numeric" });
+    const nzDateTime = new Intl.DateTimeFormat("en-NZ", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+    const nzd = new Intl.NumberFormat("en-NZ", { style: "currency", currency: "NZD", maximumFractionDigits: 0 });
+
+    let applications = [];
+    let activeView = "all";
+
+    const $ = (id) => document.getElementById(id);
+    const form = $("applicationForm");
+    const rows = $("applicationRows");
+    const toast = $("toast");
+
+    function todayISO() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function createId() {
+      if (crypto?.randomUUID) return crypto.randomUUID();
+      return `app-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+
+    function addDaysISO(days) {
+      const date = new Date();
+      date.setDate(date.getDate() + days);
+      return date.toISOString().slice(0, 10);
+    }
+
+    function parseDate(value) {
+      if (!value) return null;
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    function formatDate(value, withTime = false) {
+      const date = parseDate(value);
+      if (!date) return "Not set";
+      return withTime ? nzDateTime.format(date) : nzDate.format(date);
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("visible");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("visible"), 2200);
+    }
+
+    function save() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(applications));
+    }
+
+    function load() {
+      try {
+        applications = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      } catch {
+        applications = [];
+      }
+    }
+
+    function getChecks() {
+      return Array.from(form.querySelectorAll('input[name="check"]:checked')).map((input) => input.value);
+    }
+
+    function setChecks(checks = []) {
+      form.querySelectorAll('input[name="check"]').forEach((input) => {
+        input.checked = checks.includes(input.value);
+      });
+    }
+
+    function formData() {
+      return {
+        id: $("recordId").value || createId(),
+        title: $("title").value.trim(),
+        company: $("company").value.trim(),
+        accreditationStatus: $("accreditationStatus").value,
+        location: $("location").value,
+        workType: $("workType").value,
+        stage: $("stage").value,
+        priority: $("priority").value,
+        closingDate: $("closingDate").value,
+        appliedDate: $("appliedDate").value,
+        followupDate: $("followupDate").value,
+        interviewDate: $("interviewDate").value,
+        salaryMin: Number($("salaryMin").value || 0),
+        salaryMax: Number($("salaryMax").value || 0),
+        source: $("source").value,
+        contact: $("contact").value.trim(),
+        jobUrl: $("jobUrl").value.trim(),
+        documents: $("documents").value,
+        checks: getChecks(),
+        notes: $("notes").value.trim(),
+        updatedAt: new Date().toISOString()
+      };
+    }
+
+    function resetForm() {
+      form.reset();
+      $("recordId").value = "";
+      $("formTitle").textContent = "Add application";
+      $("priority").value = "Medium";
+      $("stage").value = "Saved";
+      $("accreditationStatus").value = "Not checked";
+      setChecks([]);
+    }
+
+    function editApplication(id) {
+      const item = applications.find((app) => app.id === id);
+      if (!item) return;
+      Object.entries(item).forEach(([key, value]) => {
+        const field = $(key);
+        if (field && key !== "checks") field.value = value;
+      });
+      setChecks(item.checks);
+      $("recordId").value = item.id;
+      $("formTitle").textContent = "Edit application";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function deleteApplication(id) {
+      const item = applications.find((app) => app.id === id);
+      if (!item || !confirm(`Delete ${item.title} at ${item.company}?`)) return;
+      applications = applications.filter((app) => app.id !== id);
+      save();
+      render();
+      showToast("Application deleted");
+    }
+
+    function duplicateApplication(id) {
+      const item = applications.find((app) => app.id === id);
+      if (!item) return;
+      applications.unshift({
+        ...item,
+        id: createId(),
+        title: `${item.title} copy`,
+        stage: "Saved",
+        appliedDate: "",
+        followupDate: addDaysISO(3),
+        updatedAt: new Date().toISOString()
+      });
+      save();
+      render();
+      showToast("Application duplicated");
+    }
+
+    function salaryText(app) {
+      if (!app.salaryMin && !app.salaryMax) return "Not listed";
+      if (app.salaryMin && app.salaryMax) return `${nzd.format(app.salaryMin)} - ${nzd.format(app.salaryMax)}`;
+      return app.salaryMin ? `From ${nzd.format(app.salaryMin)}` : `Up to ${nzd.format(app.salaryMax)}`;
+    }
+
+    function hourlyEquivalent(app) {
+      const salary = app.salaryMin || app.salaryMax || 0;
+      if (!salary) return 0;
+      return salary / 52 / 40;
+    }
+
+    function salaryStatus(app) {
+      if (app.workType === "Contractor") return { text: "Contract terms", className: "small" };
+      const hourly = hourlyEquivalent(app);
+      if (!hourly) return { text: "Check pay range", className: "risk" };
+      if (hourly < NZ_MINIMUM_WAGE_2026) return { text: `Below ${nzd.format(NZ_MINIMUM_WAGE_2026)}/hr`, className: "risk" };
+      return { text: `${nzd.format(hourly)}/hr equivalent`, className: "ok" };
+    }
+
+    function accreditationBadge(app) {
+      const status = app.accreditationStatus || "Not checked";
+      if (status === "Accredited") return `<span class="accred-pill accred-yes">✓ Accredited</span>`;
+      if (status === "Not accredited") return `<span class="accred-pill accred-no">✗ Not accredited</span>`;
+      return `<span class="accred-pill accred-unknown">Not checked</span>`;
+    }
+
+    function checkScore(app) {
+      const total = 6;
+      const done = app.checks?.length || 0;
+      return { done, total, label: `${done}/${total}` };
+    }
+
+    function stageAtLeast(app, targetStage) {
+      const order = { Saved: -1, Applied: 0, Screening: 1, Interview: 2, Offer: 3, Rejected: 0, Withdrawn: 0 };
+      const current = order[app.stage] ?? -1;
+      return current >= order[targetStage];
+    }
+
+    function funnelStats(items = applications) {
+      const appliedBase = items.filter((app) => app.stage !== "Saved").length;
+      const screening = items.filter((app) => stageAtLeast(app, "Screening")).length;
+      const interview = items.filter((app) => stageAtLeast(app, "Interview")).length;
+      const offer = items.filter((app) => stageAtLeast(app, "Offer")).length;
+      const percent = (value, base = appliedBase) => base ? Math.round((value / base) * 100) : 0;
+      return {
+        base: appliedBase,
+        screening,
+        interview,
+        offer,
+        screeningRate: percent(screening),
+        interviewRate: percent(interview),
+        offerRate: percent(offer)
+      };
+    }
+
+    function analyticsFor(app) {
+      const sameSource = applications.filter((item) => item.source === app.source && item.stage !== "Saved");
+      const sameStyle = applications.filter((item) => item.documents === app.documents && item.stage !== "Saved");
+      const sourceStats = funnelStats(sameSource);
+      const styleStats = funnelStats(sameStyle);
+      return { sourceStats, styleStats };
+    }
+
+    function miniFunnelHtml(stats) {
+      const rows = [
+        ["Screen", stats.screeningRate],
+        ["Interview", stats.interviewRate],
+        ["Offer", stats.offerRate]
+      ];
+      return rows.map(([label, rate]) => `
+        <div class="mini-step">
+          <span>${label}</span>
+          <span class="mini-bar"><span class="mini-fill" style="width:${rate}%"></span></span>
+          <span>${rate}%</span>
+        </div>
+      `).join("");
+    }
+
+    function isDue(app) {
+      if (!app.followupDate || !stageActive.has(app.stage)) return false;
+      return app.followupDate <= todayISO();
+    }
+
+    function matchesView(app) {
+      if (activeView === "active") return stageActive.has(app.stage);
+      if (activeView === "due") return isDue(app);
+      if (activeView === "offers") return app.stage === "Offer";
+      return true;
+    }
+
+    function filteredApplications() {
+      const query = $("search").value.trim().toLowerCase();
+      const stageFilter = $("stageFilter").value;
+      const locationFilter = $("locationFilter").value;
+      const sortBy = $("sortBy").value;
+
+      return applications
+        .filter((app) => matchesView(app))
+        .filter((app) => !stageFilter || app.stage === stageFilter)
+        .filter((app) => !locationFilter || app.location === locationFilter)
+        .filter((app) => {
+          if (!query) return true;
+          return [app.title, app.company, app.location, app.notes, app.contact, app.source]
+            .join(" ")
+            .toLowerCase()
+            .includes(query);
+        })
+        .sort((a, b) => {
+          if (sortBy === "priority") return priorityRank[a.priority] - priorityRank[b.priority];
+          if (sortBy === "salary") return (b.salaryMax || b.salaryMin || 0) - (a.salaryMax || a.salaryMin || 0);
+          if (sortBy === "closing") return (a.closingDate || "9999") > (b.closingDate || "9999") ? 1 : -1;
+          if (sortBy === "applied") return (b.appliedDate || "") > (a.appliedDate || "") ? 1 : -1;
+          return (a.followupDate || "9999") > (b.followupDate || "9999") ? 1 : -1;
+        });
+    }
+
+    function renderLocations() {
+      const selected = $("locationFilter").value;
+      const locations = Array.from(new Set(applications.map((app) => app.location).filter(Boolean))).sort();
+      $("locationFilter").innerHTML = '<option value="">All locations</option>' + locations.map((location) => `<option>${escapeHtml(location)}</option>`).join("");
+      $("locationFilter").value = selected;
+    }
+
+    function escapeHtml(value) {
+      return String(value || "").replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }[char]));
+    }
+
+    function renderStats() {
+      $("statTotal").textContent = applications.length;
+      $("statActive").textContent = applications.filter((app) => stageActive.has(app.stage)).length;
+      $("statInterviews").textContent = applications.filter((app) => ["Screening", "Interview"].includes(app.stage)).length;
+      $("statFollowups").textContent = applications.filter(isDue).length;
+      $("statOffer").textContent = applications.filter((app) => app.stage === "Offer").length;
+    }
+
+    function renderDueList() {
+      const dueItems = applications
+        .filter((app) => app.followupDate && stageActive.has(app.stage))
+        .sort((a, b) => a.followupDate > b.followupDate ? 1 : -1)
+        .slice(0, 5);
+
+      $("dueList").innerHTML = dueItems.length
+        ? dueItems.map((app) => `<li>${escapeHtml(app.company)}: ${escapeHtml(app.title)} - ${formatDate(app.followupDate)}</li>`).join("")
+        : "<li>No upcoming follow-ups yet.</li>";
+    }
+
+    function renderFunnelOverview() {
+      const stats = funnelStats();
+      const rows = [
+        ["Screening", stats.screening, stats.screeningRate],
+        ["Interview", stats.interview, stats.interviewRate],
+        ["Offer", stats.offer, stats.offerRate]
+      ];
+
+      $("funnelOverview").innerHTML = rows.map(([label, count, rate]) => `
+        <div class="funnel-row">
+          <span>${label}</span>
+          <span class="funnel-track"><span class="funnel-fill" style="width:${rate}%"></span></span>
+          <strong>${rate}%</strong>
+        </div>
+      `).join("");
+
+      $("funnelMeta").textContent = stats.base
+        ? `${stats.base} submitted applications measured. Offers: ${stats.offer}.`
+        : "Add applications to see conversion rates.";
+    }
+
+    function renderRows() {
+      const shown = filteredApplications();
+      $("resultCount").textContent = `${shown.length} shown`;
+      $("emptyState").classList.toggle("visible", shown.length === 0);
+      rows.innerHTML = shown.map((app) => {
+        const salary = salaryStatus(app);
+        const score = checkScore(app);
+        const analytics = analyticsFor(app);
+        const link = app.jobUrl ? `<a href="${escapeHtml(app.jobUrl)}" target="_blank" rel="noreferrer">Open ad</a>` : "No link";
+        const dueClass = isDue(app) ? "risk" : "small";
+        return `
+          <tr>
+            <td class="title-cell">
+              <strong>${escapeHtml(app.title)}</strong>
+              <span>${escapeHtml(app.company)} · ${escapeHtml(app.location)} · ${escapeHtml(app.workType)}</span><br>
+              <span>${accreditationBadge(app)}</span><br>
+              <span>${escapeHtml(app.source)} · ${link}</span>
+            </td>
+            <td>
+              <span class="pill stage-${escapeHtml(app.stage)}">${escapeHtml(app.stage)}</span><br>
+              <span class="small">${escapeHtml(app.priority)} priority · ${escapeHtml(app.documents)}</span>
+            </td>
+            <td>
+              <span class="small">Closes: ${formatDate(app.closingDate)}</span><br>
+              <span class="small">Applied: ${formatDate(app.appliedDate)}</span><br>
+              <span class="${dueClass}">Follow-up: ${formatDate(app.followupDate)}</span><br>
+              <span class="small">Interview: ${formatDate(app.interviewDate, true)}</span>
+            </td>
+            <td>
+              ${escapeHtml(salaryText(app))}<br>
+              <span class="${salary.className}">${escapeHtml(salary.text)}</span>
+            </td>
+            <td>
+              <span class="pill">${score.label} complete</span><br>
+              <span class="small">${escapeHtml((app.checks || []).map((check) => checkLabels[check] || check).join(", ") || "No checks marked")}</span>
+            </td>
+            <td class="analytics-cell">
+              <span class="pill">${escapeHtml(app.source)}</span>
+              <div class="mini-funnel">${miniFunnelHtml(analytics.sourceStats)}</div>
+              <span class="analytics-note">${analytics.sourceStats.base || 0} from this source · ${analytics.styleStats.offerRate}% offer rate for "${escapeHtml(app.documents)}"</span>
+            </td>
+            <td>
+              ${escapeHtml(app.contact || "No contact")}<br>
+              <span class="small">${escapeHtml(app.notes || "No notes")}</span>
+            </td>
+            <td>
+              <div class="table-actions">
+                <button class="icon" title="Edit" data-action="edit" data-id="${app.id}">✎</button>
+                <button class="icon" title="Duplicate" data-action="duplicate" data-id="${app.id}">⧉</button>
+                <button class="icon danger" title="Delete" data-action="delete" data-id="${app.id}">×</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function render() {
+      renderLocations();
+      renderStats();
+      renderDueList();
+      renderFunnelOverview();
+      renderRows();
+    }
+
+    function exportCSV() {
+      const headers = ["Title", "Organisation", "AEWV Accreditation", "Location", "Work type", "Stage", "Priority", "Closing date", "Applied date", "Follow-up", "Interview", "Salary min NZD", "Salary max NZD", "Source", "Contact", "Job URL", "Documents", "NZ checks", "Notes"];
+      const lines = [headers, ...applications.map((app) => [
+        app.title, app.company, app.accreditationStatus || "Not checked", app.location, app.workType, app.stage, app.priority, app.closingDate, app.appliedDate, app.followupDate,
+        app.interviewDate, app.salaryMin, app.salaryMax, app.source, app.contact, app.jobUrl, app.documents, (app.checks || []).join("; "), app.notes
+      ])].map((row) => row.map((cell) => `"${String(cell ?? "").replace(/"/g, '""')}"`).join(","));
+      download(`nz-job-applications-${todayISO()}.csv`, lines.join("\n"), "text/csv");
+    }
+
+    function backupJSON() {
+      download(`nz-job-applications-backup-${todayISO()}.json`, JSON.stringify(applications, null, 2), "application/json");
+    }
+
+    function download(filename, content, type) {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = filename;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function loadExamples() {
+      applications = [
+        {
+          id: createId(),
+          title: "Senior Customer Experience Advisor",
+          company: "Wellington Regional Council",
+          location: "Wellington",
+          workType: "Full-time",
+          stage: "Interview",
+          priority: "High",
+          closingDate: addDaysISO(6),
+          appliedDate: addDaysISO(-8),
+          followupDate: todayISO(),
+          interviewDate: `${addDaysISO(2)}T10:30`,
+          salaryMin: 88000,
+          salaryMax: 104000,
+          source: "Govt Jobs",
+          contact: "Mereana, recruitment@agency.govt.nz",
+          jobUrl: "",
+          documents: "Submitted",
+          checks: ["rightToWork", "payRange", "agreement", "privacy"],
+          notes: "Prepare examples for stakeholder management, Te Tiriti awareness, and public-sector writing.",
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: createId(),
+          title: "Implementation Consultant",
+          company: "Auckland SaaS Co",
+          location: "Hybrid NZ",
+          workType: "Full-time",
+          stage: "Applied",
+          priority: "Medium",
+          closingDate: addDaysISO(11),
+          appliedDate: addDaysISO(-2),
+          followupDate: addDaysISO(5),
+          interviewDate: "",
+          salaryMin: 95000,
+          salaryMax: 120000,
+          source: "Seek",
+          contact: "Recruiter via Seek",
+          jobUrl: "",
+          documents: "Both tailored",
+          checks: ["rightToWork", "payRange"],
+          notes: "Ask about travel across NZ, overtime expectations, and onboarding support.",
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: createId(),
+          title: "Fixed-term Project Coordinator",
+          company: "Christchurch Health Partner",
+          location: "Christchurch",
+          workType: "Fixed-term",
+          stage: "Saved",
+          priority: "Low",
+          closingDate: addDaysISO(3),
+          appliedDate: "",
+          followupDate: addDaysISO(1),
+          interviewDate: "",
+          salaryMin: 70000,
+          salaryMax: 78000,
+          source: "Kiwi Health Jobs",
+          contact: "",
+          jobUrl: "",
+          documents: "Not started",
+          checks: ["payRange"],
+          notes: "Confirm fixed-term reason and whether extension is likely.",
+          updatedAt: new Date().toISOString()
+        }
+      ];
+      save();
+      render();
+      showToast("Example applications loaded");
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const item = formData();
+      if (!item.title || !item.company) return;
+      const index = applications.findIndex((app) => app.id === item.id);
+      if (index >= 0) applications[index] = item;
+      else applications.unshift(item);
+      save();
+      resetForm();
+      render();
+      showToast("Application saved");
+    });
+
+    $("resetBtn").addEventListener("click", resetForm);
+    $("checkAccreditationBtn").addEventListener("click", async () => {
+      const company = $("company").value.trim();
+      const url = "https://www.immigration.govt.nz/new-zealand-visas/preparing-a-visa-application/working-in-nz/check-if-an-employer-is-accredited";
+      if (company && navigator.clipboard) {
+        try {
+          await navigator.clipboard.writeText(company);
+          showToast(`Copied "${company}" — paste it into the INZ search`);
+        } catch {
+          showToast("Opening INZ checker");
+        }
+      } else {
+        showToast("Opening INZ checker");
+      }
+      window.open(url, "_blank", "noopener");
+    });
+    $("sampleBtn").addEventListener("click", loadExamples);
+    $("exportBtn").addEventListener("click", exportCSV);
+    $("jsonBtn").addEventListener("click", backupJSON);
+    $("importBtn").addEventListener("click", () => $("importInput").click());
+    $("importInput").addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        const restored = JSON.parse(await file.text());
+        if (!Array.isArray(restored)) throw new Error("Backup must be a list");
+        applications = restored;
+        save();
+        render();
+        showToast("Backup restored");
+      } catch {
+        showToast("That backup file could not be restored");
+      } finally {
+        event.target.value = "";
+      }
+    });
+
+    ["search", "stageFilter", "locationFilter", "sortBy"].forEach((id) => {
+      $(id).addEventListener("input", renderRows);
+      $(id).addEventListener("change", renderRows);
+    });
+
+    document.querySelectorAll(".tab").forEach((button) => {
+      button.addEventListener("click", () => {
+        activeView = button.dataset.view;
+        document.querySelectorAll(".tab").forEach((tab) => tab.setAttribute("aria-selected", String(tab === button)));
+        renderRows();
+      });
+    });
+
+    rows.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+      const { action, id } = button.dataset;
+      if (action === "edit") editApplication(id);
+      if (action === "duplicate") duplicateApplication(id);
+      if (action === "delete") deleteApplication(id);
+    });
+
+    load();
+    resetForm();
+    render();
+  </script>
+</body>
+</html>
